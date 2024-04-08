@@ -37,7 +37,7 @@ public:
 vector<orders> os;
 vector<product> products_all;
 map<int, product> mp;
-map<int,product> request;
+map<int, product> request;
 map<int, product> all;
 
 class seller {
@@ -64,9 +64,9 @@ public:
 		else {
 			p1.availability = "No";
 		}
-		request[p1.product_id]=p1;
+		request[p1.product_id] = p1;
 	}
-	void update_count(int id,int  ct) {
+	void update_count(int id, int  ct) {
 		auto dummy = &all[id];
 		dummy->quantity += ct;
 	}
@@ -79,7 +79,7 @@ public:
 	void view_request() {
 		for (auto i : request) {
 			auto k = i.second;
-			cout << "Product Id : " <<  k.product_id << endl;
+			cout << "Product Id : " << k.product_id << endl;
 			cout << "Product Name : " << k.product_name << endl;
 			cout << "Product Price : " << k.price << endl;
 			cout << "Product Quantity : " << k.quantity << endl;
@@ -90,11 +90,11 @@ public:
 	}
 	void approve(int req_id) {
 		all[req_id] = request[req_id];
-		request.erase(req_id);	
+		request.erase(req_id);
 		cout << "Product Added Successfully" << endl;
 	}
 	void show_purchases() {
-		for (int ik = 0;ik<os.size();ik++) {
+		for (int ik = 0; ik < os.size(); ik++) {
 			auto i = os[ik];
 			auto j = i.det;
 			cout << "Order ID : " << ik + 1 << endl;
@@ -102,25 +102,28 @@ public:
 			for (auto g : j) {
 				cout << g.first << g.second << endl;
 			}
+			cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 		}
+		cout << "-----------------------------------------------------" << endl;
+		cout << "-----------------------------------------------------" << endl;
 	}
 };
 
 class cart {
 public:
 	map<int, product> tm;
-	long total_amnt=0;
+	long total_amnt = 0;
 }mine;
 
 
 class customer {
 public:
-	int usrid=os.size();
-	void add_product(int prid,int q) {
-		if (all[prid].quantity > 0) {
+	int usrid = os.size();
+	void add_product(int prid, int q) {
+		if (all[prid].quantity > 0 && q <= all[prid].quantity) {
 			mine.tm[prid] = all[prid];
 			mine.tm[prid].quantity = q;
-			mine.total_amnt += all[prid].price;
+			mine.total_amnt += all[prid].price * q;
 			cout << mine.tm[prid].product_name << " added to the cart" << endl;
 			all[prid].quantity -= q;
 			if (all[prid].quantity <= 0) {
@@ -129,81 +132,89 @@ public:
 		}
 		else {
 			cout << "Product unavailable" << endl;
+			return;
 		}
 	}
 	void remove_product(int prid) {
+		mine.total_amnt -= ((all[prid].price) * mine.tm[prid].quantity);
 		mine.tm.erase(prid);
-		mine.total_amnt -= mp[prid].price;
+		cout << "Product removed successfully" << endl;
 	}
 	void view_cart() {
 		//cout << mine.tm.size() << endl;
 		for (auto y : mine.tm) {
-			cout << y.second.product_name<<"-----" << y.second.price << endl;
+			cout << y.second.product_id << " : " << y.second.product_name << "-----quantity : " << y.second.quantity << "-----price : " << y.second.price << "-----cumulative price : " << (y.second.quantity) * (y.second.price) << endl;
 		}
-		cout << "Total Price : " << mine.total_amnt;
+		cout << "Total Price : " << mine.total_amnt << endl;
+		cout << "-----------------------------------------------------" << endl;
 	}
 	void empty_cart() {
 		mine.tm.empty();
 	}
 	void purcharse() {
-		int o;
-		cout << "Enter mode of payment from below " <<endl;
-		cout << "1.Cash On Delivery" << endl << "2.Mobile Banking" << endl << "3.Net Banking" << endl << "4.Quit";
-		cin >> o;
-		string sx;
-		bool b = false;
-		switch (o) {
-		case 1:
-		{
-			cout << "Oder Placed Successfully" << endl;
-			cout << "-----------------------------------------------------" << endl;
-			sx = "Cash on delivery";
-			b = true;
-			break;
-		}
-		case 2:
-		{
-			cout << "Transcation Completed Successfully" << endl;
-			cout << "Oder Placed Successfully" << endl;
-			cout << "-----------------------------------------------------" << endl;
-			sx = "Mobile banking";
-			b = true;
-			break;
-		}
-		case 3:
-		{
-			cout << "Transcation Completed Successfully" << endl;
-			cout << "Oder Placed Successfully" << endl;
-			cout << "-----------------------------------------------------" << endl;
-			sx = "Net Banking";
-			b = true;
-			break;
-		}
-		case 4:
-		{
-			cout << "-----------------------------------------------------" << endl;
-			return;
-		}
-		default:
-		{
-			cout << "Invalid option" << endl;
-			cout << "-----------------------------------------------------" << endl;
-		}
-		}
-		if (b) {
-			orders o;
-			o.tot = mine.total_amnt;
-			map<int, product>::iterator it;
-			for (it = mine.tm.begin(); it != mine.tm.end(); it++) {
-				product k = it->second;
-				o.det["User ID : "] = to_string(usrid);
-				o.det["Product Name : "] = k.product_name;
-				o.det["Product Price : "] = to_string(k.price);
-				o.det["Product Quantity : "] = to_string(k.quantity);
-				os.push_back(o);
+		if (mine.tm.size() > 0) {
+			int o;
+			cout << "Enter mode of payment from below " << endl;
+			cout << "1.Cash On Delivery" << endl << "2.Mobile Banking" << endl << "3.Net Banking" << endl << "4.Quit";
+			cin >> o;
+			string sx;
+			bool b = false;
+			switch (o) {
+			case 1:
+			{
+				cout << "Oder Placed Successfully" << endl;
+				cout << "-----------------------------------------------------" << endl;
+				sx = "Cash on delivery";
+				b = true;
+				break;
 			}
-			mine.tm.empty();
-			mine.total_amnt = 0;
+			case 2:
+			{
+				cout << "Transcation Completed Successfully" << endl;
+				cout << "Oder Placed Successfully" << endl;
+				cout << "-----------------------------------------------------" << endl;
+				sx = "Mobile banking";
+				b = true;
+				break;
+			}
+			case 3:
+			{
+				cout << "Transcation Completed Successfully" << endl;
+				cout << "Oder Placed Successfully" << endl;
+				cout << "-----------------------------------------------------" << endl;
+				sx = "Net Banking";
+				b = true;
+				break;
+			}
+			case 4:
+			{
+				cout << "-----------------------------------------------------" << endl;
+				return;
+			}
+			default:
+			{
+				cout << "Invalid option" << endl;
+				cout << "-----------------------------------------------------" << endl;
+			}
+			}
+			if (b) {
+				orders o;
+				o.tot = mine.total_amnt;
+				map<int, product>::iterator it;
+				for (it = mine.tm.begin(); it != mine.tm.end(); it++) {
+					product k = it->second;
+					o.det["User ID : "] = to_string(usrid);
+					o.det["Product Name : "] = k.product_name;
+					o.det["Product Price : "] = to_string(k.price);
+					o.det["Product Quantity : "] = to_string(k.quantity);
+					os.push_back(o);
+				}
+				mine.tm.empty();
+				mine.total_amnt = 0;
+			}
+		}
+		else {
+			cout << "Cart is empyt" << endl << endl << endl;
 		}
 	}
 	void view_product() {
@@ -230,7 +241,7 @@ int main()
 	i3.addnew(33, 350, 0, 3, "TupperWare-Bottle", "PET", "No", "Containers");
 	i4.addnew(44, 780, 30, 4, "EuroGames-Mouse", "Plastic", "Yes", "Gadgets");
 	i5.addnew(55, 2500, 80, 3.5, "WoodLand-Sandals-1", "Leather", "Yes", "Footwears");
-	i6.addnew(66, 590, 35, 5, "Sirt-Buttons", "Plastic", "Yes", "Fassion");
+	i6.addnew(66, 590, 35, 5, "Shirt-Buttons", "Plastic", "Yes", "Fassion");
 	i7.addnew(77, 120, 300, 2, "Sensodyne-Brush", "Silica", "Yes", "Daily");
 	all[i1.product_id] = i1;
 	all[i2.product_id] = i2;
@@ -244,73 +255,78 @@ int main()
 	while (b) {
 		cout << "select your role : " << endl;
 		cout << "1.Customer" << endl << "2.Seller" << endl << "3.Admin" << endl << "4.Quit" << endl;
-		int h;
+		string h;
 		cin >> h;
-		switch (h)
+		int fd = int(h[0]) - 48;
+		switch (fd)
 		{
 		case 1:
 		{
 			int inop;
 			cout << "What do you want to do ?" << endl;
-			cout << "1.View Products" << endl << "2.Add Product To Cart" << endl << "3.View Cart" << endl << "4.Remove Product" << endl << "5.Empty Cart" << endl << "6.Purchase" << endl << "7.Quit" << endl;
-			cin >> inop;
-			customer c1;
-			switch (inop) {
-			case 1:
-			{
-				c1.view_product();
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 2:
-			{
-				int pdi, qy;
-				cout << "Enter the product id : ";
-				cin >> pdi;
-				cout << "Enter the quantity : ";
-				cin >> qy;
-				c1.add_product(pdi, qy);
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 3:
-			{
-				c1.view_cart();
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 4:
-			{
-				int pr;
-				cout << "Enter product id to remove : ";
-				cin >> pr;
-				c1.remove_product(pr);
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 5:
-			{
-				c1.empty_cart();
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 6:
-			{
-				c1.purcharse();
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 7:
-			{
-				b = false;
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			default :
-			{
-				cout << "Enter valid input" << endl;
-				cout << "-----------------------------------------------------" << endl;
-			}
+			bool c = true;
+			while (c) {
+				cout << "1.View Products" << endl << "2.Add Product To Cart" << endl << "3.View Cart" << endl << "4.Remove Product" << endl << "5.Empty Cart" << endl << "6.Purchase" << endl << "7.Quit" << endl;
+				cin >> inop;
+				customer c1;
+				switch (inop) {
+				case 1:
+				{
+					c1.view_product();
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 2:
+				{
+					int pdi, qy;
+					cout << "Enter the product id : ";
+					cin >> pdi;
+					cout << "Enter the quantity : ";
+					cin >> qy;
+					c1.add_product(pdi, qy);
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 3:
+				{
+					c1.view_cart();
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 4:
+				{
+					int pr;
+					cout << "Enter product id to remove : ";
+					cin >> pr;
+					c1.remove_product(pr);
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 5:
+				{
+					c1.empty_cart();
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 6:
+				{
+					c1.purcharse();
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 7:
+				{
+					//b = false;
+					cout << "-----------------------------------------------------" << endl;
+					c = false;
+					break;
+				}
+				default:
+				{
+					cout << "Enter valid input" << endl;
+					cout << "-----------------------------------------------------" << endl;
+				}
+				}
 			}
 			break;
 		}
@@ -318,37 +334,42 @@ int main()
 		{
 			cout << "Hi Seller" << endl;
 			cout << "What operation to perform : " << endl;
-			cout << "1.Request addition of product" << endl << "2.Update product cout" << endl << "3.Quit" << endl;
-			int hop;
-			cin >> hop;
-			seller s1;
-			switch (hop)
-			{
-			case 1:
-			{
-				s1.add_product();
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 2:
-			{
-				int hpd,hq;
-				cout << "Enter product id : ";
-				cin >> hpd;
-				cout << "Enter quantity to add : ";
-				cin >> hq;
-				s1.update_count(hpd, hq);
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 3:
-			{
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			default:
-				cout << "Enter valid input" << endl;
-				cout << "-----------------------------------------------------" << endl;
+			bool f = true;
+			while (f) {
+				cout << "1.Request addition of product" << endl << "2.Update product cout" << endl << "3.Quit" << endl;
+				int hop;
+				cin >> hop;
+				seller s1;
+				switch (hop)
+				{
+				case 1:
+				{
+					s1.add_product();
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 2:
+				{
+					int hpd, hq;
+					cout << "Enter product id : ";
+					cin >> hpd;
+					cout << "Enter quantity to add : ";
+					cin >> hq;
+					s1.update_count(hpd, hq);
+					cout << "Product insertion requested " << endl;
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 3:
+				{
+					f = false;
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				default:
+					cout << "Enter valid input" << endl;
+					cout << "-----------------------------------------------------" << endl;
+				}
 			}
 			break;
 		}
@@ -357,47 +378,52 @@ int main()
 			int an;
 			cout << "Heloo Admin" << endl;
 			cout << "Enter operation to perform : " << endl;
-			cout << "1.View Product Request" << endl << "2.Aprove Product Request" << endl << "3.View Purchases" << endl << "4.Quit" << endl;
-			cin >> an;
-			admin a1;
-			switch(an){
-			case 1:
-			{
-				a1.view_request();
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 2:
-			{
-				int apid;
-				cout << "Enter request id : ";
-				cin >> apid;
-				a1.approve(apid);
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 3:
-			{
-				a1.show_purchases();
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			case 4:
-			{
-				cout << "-----------------------------------------------------" << endl;
-				break;
-			}
-			default:
-			{
-				cout << "Enter valid input" << endl;
-				cout << "-----------------------------------------------------" << endl;
-			}
+			bool a = true;
+			while (a) {
+				cout << "1.View Product Request" << endl << "2.Aprove Product Request" << endl << "3.View Purchases" << endl << "4.Quit" << endl;
+				cin >> an;
+				admin a1;
+				switch (an) {
+				case 1:
+				{
+					a1.view_request();
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 2:
+				{
+					int apid;
+					cout << "Enter request id : ";
+					cin >> apid;
+					a1.approve(apid);
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 3:
+				{
+					a1.show_purchases();
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				case 4:
+				{
+					a = false;
+					cout << "-----------------------------------------------------" << endl;
+					break;
+				}
+				default:
+				{
+					cout << "Enter valid input" << endl;
+					cout << "-----------------------------------------------------" << endl;
+				}
+				}
 			}
 			break;
 		}
 		case 4:
 		{
-			b = false;
+			//b = false; 
+			return 0;
 			break;
 		}
 		default:
